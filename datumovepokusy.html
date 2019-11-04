@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Datumové pokusy</title>
+    <script>
+        function nactiDatum() {
+            fetch("http://localhost:8888/denvtydnu").then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    document.getElementById("den").innerHTML = obj.denVTydnuCesky.toLowerCase();
+                    document.getElementById("datumACas").innerHTML = obj.datumACasCeskyFormat;
+                });
+            });
+        }
+        function casovac() {
+            setInterval(nactiDatum, 1000);
+        }
+    </script>
+</head>
+<body onload="casovac()">
+
+Dnes je <b id="den"></b> <b id="datumACas"></b>.
+
+</body>
+</html>

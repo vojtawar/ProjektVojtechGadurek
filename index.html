@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Moje single page application</title>
+    <script>
+        function nactiSvatky() {
+            setInterval(showAllUcty, 1000); //po 1s se bude aktualizovat seznam zprav chatu
+
+            //nastaveni vychozi hodnoty kalendare
+            document.getElementById("kalendar").valueAsDate = new Date();
+            svatkyPodleKalendare();
+
+            //dnesni a zitrejsi svatek
+            fetch("http://localhost:8888/svatky").then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    document.getElementById("datum").innerHTML = obj.datum;
+                    document.getElementById("svatek").innerHTML = obj.svatek;
+                    document.getElementById("svatek2").innerHTML = obj.svatekZitra;
+                });
+            });
+        }
+        function svatkyPodleKalendare() {
+            let d = document.getElementById("kalendar").valueAsDate;
+            fetch("http://localhost:8888/svatky?d="+d.getDate()+"&m="+(d.getMonth()+1)).then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    document.getElementById("svatek3").innerHTML = obj.svatek;
+                });
+            });
+        }
+        function posliZpravu() {
+            let chatmsg = document.getElementById("chatmsg").value;
+            fetch("http://localhost:8888/chat/addmsg?msg="+chatmsg).then(function(response) {
+                response.text().then(function(text) {
+                    // nemusim delat nic
+                });
+            });
+        }
+        function seznamZprav() {
+            fetch("http://localhost:8888/chat/listmsgs").then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    let s = "";
+                    for (let o of obj.messages) {
+                        s = s + o.time + ": " + o.text + "<br>";
+                    }
+                    document.getElementById("chatmsgs").innerHTML = s;
+                });
+            });
+        }
+        function zalozUcet() {
+            let nickname = document.getElementById("nickname").value;
+            let password = document.getElementById("password").value;
+            fetch("http://localhost:8888/ucet/zaloz?=nickname"+nickname+"&password="+password).then(function(response) {
+                response.text().then(function(text) {
+                });
+            });
+        }
+        function showAllUcty() {
+            fetch("http://localhost:8888/ucet/showall").then(function(response) {
+                response.text().then(function(text) {
+                    let obj = JSON.parse(text);
+                    let s = "";
+                    for (let o of obj.showAllAcounts) {
+                        s = s + o.password;
+                    }
+                    document.getElementById("chatmsgs").innerHTML = s;
+                });
+            });
+        }
+    </script>
+</head>
+<body>
+
+<h1>appka</h1>
+
+Dnes je <span id="datum">...</span> a svátek má <span id="svatek">...</span>, zítra <span id="svatek2">...</span>.
+<br><br>
+
+<h1>chat</h1>
+<div id="chatmsgs"></div>
+
+<input type="text" id="chatmsg"><input type="button" value="Odešli" onclick="posliZpravu()">
+
+<br><br>
+<input type="text" id="password"><input>
+<br><br>
+<input type="text" id="nickname"><input type="button" value="Zaloz Ucet" onclick="zalozUcet()">
+<br><br>
+
+</body>
+</html>
